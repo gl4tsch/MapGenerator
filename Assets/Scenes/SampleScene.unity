@@ -316,11 +316,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1ddbbda8e95e774cb5ac730799bb11b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DrawSites: 1
+  DrawSites: 0
   DrawDelaunayTriangulation: 0
   DrawCentroids: 0
-  DrawCentroidEdges: 0
-  DrawCells: 0
+  DrawCentroidEdges: 1
+  DrawCells: 1
   dot: {fileID: 1865445810895636, guid: c1250628a8a5e5442a0b8132e01aaacb, type: 2}
   centroid: {fileID: 1812788073468556, guid: 6ba34682a4791a64e85c8d457f152659, type: 2}
   cell: {fileID: 1557382002648988, guid: 8bc852afb3e4bdb4d854250ff82ef231, type: 2}
