@@ -21,7 +21,7 @@ public class HeightField
         return points;
     }
 
-    public static List<Vertex> PerlinIsland(List<Vertex> points, float yShift, float edgeDown, float dropOffScale, float frequency, int numElevationLevels)
+    public static List<Vertex> PerlinIsland(List<Vertex> points, float mapSize, float yShift, float edgeDown, float dropOffScale, float frequency, int numElevationLevels)
     {
         float a = yShift;               // y shift
         float b = edgeDown;             // push edges down
@@ -33,10 +33,12 @@ public class HeightField
 
         foreach(Vertex p in points)
         {
-            var nx = (p.position.x - (PoissonDiscSampling.mapSize / 2)) / PoissonDiscSampling.mapSize; // normalized position relative to center
-            var nz = (p.position.z - (PoissonDiscSampling.mapSize / 2)) / PoissonDiscSampling.mapSize;
+            if (p.isScaffolding)
+                continue;
+            var nx = (p.position.x - (mapSize / 2)) / mapSize; // normalized position relative to center
+            var nz = (p.position.z - (mapSize / 2)) / mapSize;
             d = 2 * Mathf.Max(Mathf.Abs(nx), Mathf.Abs(nz)); // Manhatten Distance
-            var h = Mathf.PerlinNoise(p.position.x / PoissonDiscSampling.mapSize * f + r, p.position.z / PoissonDiscSampling.mapSize * f + r);
+            var h = Mathf.PerlinNoise(p.position.x / mapSize * f + r, p.position.z / mapSize * f + r);
             //p.position.y = e;
             h = (h + a) * (1 - b * Mathf.Pow(d, c));
             p.position.y = Mathf.Round(h * e) / e; // round to fix number of elevation levels

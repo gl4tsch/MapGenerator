@@ -27,6 +27,7 @@ public class Vertex
     public List<Vector3> Centroids; // in local space
     public List<Vertex> Neighbours;
     public bool once; // needed for neighboursNeighbours
+    public bool isScaffolding;
 
     public Vertex(Vector3 position)
     {
@@ -34,6 +35,15 @@ public class Vertex
         Centroids = new List<Vector3>();
         Neighbours = new List<Vertex>();
         once = false;
+    }
+
+    public Vertex(Vector3 position, bool isScaffolding)
+    {
+        this.position = position;
+        Centroids = new List<Vector3>();
+        Neighbours = new List<Vertex>();
+        once = false;
+        this.isScaffolding = isScaffolding;
     }
 
     //Get 2d pos of this vertex

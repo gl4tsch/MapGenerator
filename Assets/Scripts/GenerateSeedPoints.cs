@@ -3,15 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-public static class PoissonDiscSampling {
-
-    public static float mapSize;
+public static class GenerateSeedPoints {
 
     private static List<Vertex> dotList;
     private static int[][] backgroundGrid;
     private static List<int> activeSamples;
 
-    public static List<Vertex> GenerateSeedPoints(float rMin, float rMax, int rejectionLimit, float mapsize, GameObject mainCamera)
+    public static List<Vertex> Scaffolding(float mapSize)
+    {
+        List<Vertex> scaffolding = new List<Vertex>();
+        scaffolding.Add(new Vertex(new Vector3(mapSize/2, 0, -mapSize), true));
+        scaffolding.Add(new Vertex(new Vector3(mapSize/2, 0, mapSize + mapSize), true));
+        scaffolding.Add(new Vertex(new Vector3(mapSize + mapSize, 0, mapSize/2), true));
+        scaffolding.Add(new Vertex(new Vector3(-mapSize, 0, mapSize/2), true));
+        return scaffolding;
+    }
+
+    public static List<Vertex> PoissonDiscSampling(float rMin, float rMax, int rejectionLimit, float mapSize, GameObject mainCamera)
     {
         /* Step 0.
          * Initialize an n-dimensional background grid for storing
@@ -34,8 +42,7 @@ public static class PoissonDiscSampling {
          * and add it to the active list. If after k attempts no such point is
          * found, instead remove i from the active list.
          */
-
-        mapSize = mapsize;
+        
         var cellSize = rMin / Mathf.Sqrt(2);
         int gridSize = (int)(mapSize / cellSize)+1;
 
@@ -52,8 +59,8 @@ public static class PoissonDiscSampling {
 
         
         dotList = new List<Vertex>();
-        //first sample in the middle
-        dotList.Add(new Vertex(new Vector3(mapSize / 2, 0, mapSize / 2)));
+        //first sample random
+        dotList.Add(new Vertex(new Vector3(Random.Range(0f,mapSize), 0, Random.Range(0f,mapSize))));
         backgroundGrid[gridSize / 2][gridSize / 2] = 0;
         activeSamples = new List<int>();
         activeSamples.Add(0);
@@ -70,11 +77,15 @@ public static class PoissonDiscSampling {
             for (k = 0; k < rejectionLimit; k++)
             {
                 testPos = randomPosInAnnulus(rMin, rMax, dotList[activeSamples[chosenIndex]].position);
+                if(testPos.x < 0 || testPos.z < 0 || testPos.x > mapSize || testPos.z > mapSize)
+                {
+                    continue;
+                }
                 //check backgroundGrid if Position is viable
                 testIndexX = (int)(testPos.x / cellSize);
                 testIndexY = (int)(testPos.z / cellSize);
 
-                if (!isInBounds(testIndexX, testIndexY, gridSize))
+                if (!isInGridBounds(testIndexX, testIndexY, gridSize))
                 {
                     continue;
                 }
@@ -82,7 +93,7 @@ public static class PoissonDiscSampling {
                 {
                     continue;
                 }
-                else if (isInBounds(testIndexX - 1, testIndexY - 1, gridSize) && backgroundGrid[testIndexX - 1][testIndexY - 1] >= 0) //top left
+                else if (isInGridBounds(testIndexX - 1, testIndexY - 1, gridSize) && backgroundGrid[testIndexX - 1][testIndexY - 1] >= 0) //top left
                 {
                     //test distance. continue if hit
                     if (Vector3.Distance(dotList[backgroundGrid[testIndexX - 1][testIndexY - 1]].position, testPos) < rMin)
@@ -90,49 +101,49 @@ public static class PoissonDiscSampling {
                         continue;
                     }
                 }
-                else if (isInBounds(testIndexX, testIndexY - 1, gridSize) && backgroundGrid[testIndexX][testIndexY - 1] >= 0) //top
+                else if (isInGridBounds(testIndexX, testIndexY - 1, gridSize) && backgroundGrid[testIndexX][testIndexY - 1] >= 0) //top
                 {
                     if (Vector3.Distance(dotList[backgroundGrid[testIndexX][testIndexY - 1]].position, testPos) < rMin)
                     {
                         continue;
                     }
                 }
-                else if (isInBounds(testIndexX + 1, testIndexY - 1, gridSize) && backgroundGrid[testIndexX + 1][testIndexY - 1] >= 0) //top right
+                else if (isInGridBounds(testIndexX + 1, testIndexY - 1, gridSize) && backgroundGrid[testIndexX + 1][testIndexY - 1] >= 0) //top right
                 {
                     if (Vector3.Distance(dotList[backgroundGrid[testIndexX + 1][testIndexY - 1]].position, testPos) < rMin)
                     {
                         continue;
                     }
                 }
-                else if (isInBounds(testIndexX + 1, testIndexY, gridSize) && backgroundGrid[testIndexX + 1][testIndexY] >= 0) //right
+                else if (isInGridBounds(testIndexX + 1, testIndexY, gridSize) && backgroundGrid[testIndexX + 1][testIndexY] >= 0) //right
                 {
                     if (Vector3.Distance(dotList[backgroundGrid[testIndexX + 1][testIndexY]].position, testPos) < rMin)
                     {
                         continue;
                     }
                 }
-                else if (isInBounds(testIndexX + 1, testIndexY + 1, gridSize) && backgroundGrid[testIndexX + 1][testIndexY + 1] >= 0) //bottom right
+                else if (isInGridBounds(testIndexX + 1, testIndexY + 1, gridSize) && backgroundGrid[testIndexX + 1][testIndexY + 1] >= 0) //bottom right
                 {
                     if (Vector3.Distance(dotList[backgroundGrid[testIndexX + 1][testIndexY + 1]].position, testPos) < rMin)
                     {
                         continue;
                     }
                 }
-                else if (isInBounds(testIndexX, testIndexY + 1, gridSize) && backgroundGrid[testIndexX][testIndexY + 1] >= 0) //bottom
+                else if (isInGridBounds(testIndexX, testIndexY + 1, gridSize) && backgroundGrid[testIndexX][testIndexY + 1] >= 0) //bottom
                 {
                     if (Vector3.Distance(dotList[backgroundGrid[testIndexX][testIndexY + 1]].position, testPos) < rMin)
                     {
                         continue;
                     }
                 }
-                else if (isInBounds(testIndexX - 1, testIndexY + 1, gridSize) && backgroundGrid[testIndexX - 1][testIndexY + 1] >= 0) //bottom left
+                else if (isInGridBounds(testIndexX - 1, testIndexY + 1, gridSize) && backgroundGrid[testIndexX - 1][testIndexY + 1] >= 0) //bottom left
                 {
                     if (Vector3.Distance(dotList[backgroundGrid[testIndexX - 1][testIndexY + 1]].position, testPos) < rMin)
                     {
                         continue;
                     }
                 }
-                else if (isInBounds(testIndexX - 1, testIndexY, gridSize) && backgroundGrid[testIndexX - 1][testIndexY] >= 0) //left
+                else if (isInGridBounds(testIndexX - 1, testIndexY, gridSize) && backgroundGrid[testIndexX - 1][testIndexY] >= 0) //left
                 {
                     if (Vector3.Distance(dotList[backgroundGrid[testIndexX - 1][testIndexY]].position, testPos) < rMin)
                     {
@@ -168,7 +179,7 @@ public static class PoissonDiscSampling {
         return origin + new Vector3(r * Mathf.Cos(t), 0, r * Mathf.Sin(t));
     }
 
-    static bool isInBounds(int x, int y, int gridSize)
+    static bool isInGridBounds(int x, int y, int gridSize)
     {
         if (x < 0 || y < 0 || x >= gridSize || y >= gridSize)
         {

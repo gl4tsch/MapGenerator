@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CellMeshCreator : MonoBehaviour {
     
-    public static void SpawnMeshes (List<Vertex> points, GameObject cell)
+    public static List<GameObject> SpawnMeshes (List<Vertex> points, GameObject cell)
     {
         List<GameObject> cells = new List<GameObject>(points.Count);
 
@@ -60,5 +60,6 @@ public class CellMeshCreator : MonoBehaviour {
             mesh.triangles = tris.ToArray();
             mesh.RecalculateNormals();
         }
+        return cells;
     }
 }

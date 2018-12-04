@@ -7,12 +7,93 @@ using System.Linq;
 //previously connected points which are visible to the point. An edge is visible if the center of the edge is visible to the point.
 public static class Triangulation
 {
-    public static List<Triangle> ConvexHullTriangulation(List<Vertex> points, List<Vertex> hull)
+    public static List<Triangle> TriangulateConvexPolygon(List<Vertex> convexHullPoints)
     {
-        return null;
+        List<Triangle> triangles = new List<Triangle>();
+
+        convexHullPoints = convexHullPoints.OrderBy(c => Mathf.Atan2(c.position.x, c.position.z)).ToList(); // sort hull points clockwise
+
+        for (int i = 2; i < convexHullPoints.Count; i++)
+        {
+            Vertex a = convexHullPoints[0];
+            Vertex b = convexHullPoints[i - 1];
+            Vertex c = convexHullPoints[i];
+
+            triangles.Add(new Triangle(a, b, c));
+        }
+
+        return triangles;
     }
 
-    public static List<Triangle> IncrementalTriangulation(List<Vertex> points)
+    public static List<Triangle> TriangleSplittingAlgorithm(List<Vertex> points, List<Triangle> convexPolygon)
+    {
+        //Add the remaining points and split the triangles
+        for (int i = 0; i < points.Count; i++)
+        {
+            Vertex currentPoint = points[i];
+
+            //2d space
+            Vector2 p = new Vector2(currentPoint.position.x, currentPoint.position.z);
+
+            //Which triangle is this point in?
+            for (int j = 0; j < convexPolygon.Count; j++)
+            {
+                Triangle t = convexPolygon[j];
+
+                Vector2 p1 = new Vector2(t.v1.position.x, t.v1.position.z);
+                Vector2 p2 = new Vector2(t.v2.position.x, t.v2.position.z);
+                Vector2 p3 = new Vector2(t.v3.position.x, t.v3.position.z);
+
+                if (IsPointInTriangle(p1, p2, p3, p))
+                {
+                    //Create 3 new triangles
+                    Triangle t1 = new Triangle(t.v1, t.v2, currentPoint);
+                    Triangle t2 = new Triangle(t.v2, t.v3, currentPoint);
+                    Triangle t3 = new Triangle(t.v3, t.v1, currentPoint);
+
+                    //Remove the old triangle
+                    convexPolygon.Remove(t);
+
+                    //Add the new triangles
+                    convexPolygon.Add(t1);
+                    convexPolygon.Add(t2);
+                    convexPolygon.Add(t3);
+
+                    break;
+                }
+            }
+        }
+
+        return convexPolygon;
+    }
+
+    public static bool IsPointInTriangle(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p)
+    {
+        bool isWithinTriangle = false;
+
+        //Based on Barycentric coordinates
+        float denominator = ((p2.y - p3.y) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.y - p3.y));
+
+        float a = ((p2.y - p3.y) * (p.x - p3.x) + (p3.x - p2.x) * (p.y - p3.y)) / denominator;
+        float b = ((p3.y - p1.y) * (p.x - p3.x) + (p1.x - p3.x) * (p.y - p3.y)) / denominator;
+        float c = 1 - a - b;
+
+        //the point is within the triangle or on the border if 0 <= a <= 1 and 0 <= b <= 1 and 0 <= c <= 1
+        //if (a >= 0f && a <= 1f && b >= 0f && b <= 1f && c >= 0f && c <= 1f)
+        //{
+        //    isWithinTriangle = true;
+        //}
+
+        //The point is within the triangle
+        if (a > 0f && a < 1f && b > 0f && b < 1f && c > 0f && c < 1f)
+        {
+            isWithinTriangle = true;
+        }
+
+        return isWithinTriangle;
+    }
+
+    public static List<Triangle> IncrementalAlgorithm(List<Vertex> points)
     {
         List<Triangle> triangles = new List<Triangle>();
 

@@ -264,7 +264,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 394719576}
-  - component: {fileID: 394719575}
   - component: {fileID: 394719577}
   m_Layer: 0
   m_Name: MapGenerator
@@ -273,25 +272,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &394719575
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 394719574}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 336cdc9f8a4e0034d9283df58b852621, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  DrawDelaunayDots: 1
-  DrawDelauneyEdges: 1
-  DrawVoronoiCentroids: 1
-  DrawVoronoiEdges: 0
-  dot: {fileID: 1865445810895636, guid: c1250628a8a5e5442a0b8132e01aaacb, type: 2}
-  centroid: {fileID: 1812788073468556, guid: 6ba34682a4791a64e85c8d457f152659, type: 2}
-  cell: {fileID: 1557382002648988, guid: 8bc852afb3e4bdb4d854250ff82ef231, type: 2}
-  mainCamera: {fileID: 282840810}
 --- !u!4 &394719576
 Transform:
   m_ObjectHideFlags: 0
@@ -316,13 +296,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1ddbbda8e95e774cb5ac730799bb11b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DrawSites: 0
-  DrawDelaunayTriangulation: 0
-  DrawCentroids: 0
-  DrawCentroidEdges: 1
-  DrawCells: 1
+  mapSize: 6
+  rMin: 0.5
+  rMax: 2
+  DrawSites: 1
+  DrawDelaunayTriangulation: 1
+  DrawCentroids: 1
+  DrawCentroidEdges: 0
+  DrawCells: 0
   dot: {fileID: 1865445810895636, guid: c1250628a8a5e5442a0b8132e01aaacb, type: 2}
   centroid: {fileID: 1812788073468556, guid: 6ba34682a4791a64e85c8d457f152659, type: 2}
   cell: {fileID: 1557382002648988, guid: 8bc852afb3e4bdb4d854250ff82ef231, type: 2}
   mainCamera: {fileID: 282840810}
   centroids: []
+  cells: []
