@@ -212,7 +212,6 @@ Transform:
   m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
   m_LocalPosition: {x: 6.48, y: 24.55, z: 6.57}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -296,7 +295,6 @@ Transform:
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 10, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
@@ -329,7 +327,6 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
@@ -373,11 +370,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapSize: 40
   rMin: 1
-  showDelaunayDots: 1
-  showVoronoiDots: 0
-  delaunayDot: {fileID: 1865445810895636, guid: c1250628a8a5e5442a0b8132e01aaacb,
+  lineMaterial: {fileID: 2100000, guid: 960721c498947f649a98d641bf0caf10, type: 2}
+  drawDelaunayPoints: 0
+  delaunayPointPrefab: {fileID: 1865445810895636, guid: c1250628a8a5e5442a0b8132e01aaacb,
     type: 3}
-  voronoiDot: {fileID: 0}
+  drawDelaunayEdges: 0
+  delaunayEdgeColor: {r: 1, g: 0, b: 0, a: 1}
+  drawVoronoiPoints: 0
+  voronoiPointPrefab: {fileID: 1812788073468556, guid: 6ba34682a4791a64e85c8d457f152659,
+    type: 3}
+  drawVoronoiEdges: 0
+  voronoiEdgeColor: {r: 0, g: 1, b: 1, a: 1}
 --- !u!850595691 &807514396
 LightingSettings:
   m_ObjectHideFlags: 0
@@ -385,7 +388,7 @@ LightingSettings:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Settings.lighting
-  serializedVersion: 4
+  serializedVersion: 3
   m_GIWorkflowMode: 0
   m_EnableBakedLightmaps: 1
   m_EnableRealtimeLightmaps: 0
@@ -398,7 +401,7 @@ LightingSettings:
   m_LightmapMaxSize: 512
   m_BakeResolution: 10
   m_Padding: 2
-  m_LightmapCompression: 3
+  m_TextureCompression: 1
   m_AO: 0
   m_AOMaxDistance: 1
   m_CompAOExponent: 1
@@ -439,4 +442,3 @@ LightingSettings:
   m_PVRFilteringAtrousPositionSigmaDirect: 0.5
   m_PVRFilteringAtrousPositionSigmaIndirect: 2
   m_PVRFilteringAtrousPositionSigmaAO: 1
-  m_PVRTiledBaking: 0
