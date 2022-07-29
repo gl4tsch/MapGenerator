@@ -9,8 +9,8 @@ using UnityEngine;
 public class MapGenerator : MonoBehaviour
 {
     [Header("Settings")]
-    [SerializeField] float mapSize = 10;
-    [SerializeField] float rMin = 0.2f;
+    [SerializeField] float mapSize = 40;
+    [SerializeField] float rMin = 1;
 
     [Header("Debug Visuals")]
     [SerializeField] Material lineMaterial;
