@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class GenerateBlueNoiseMap : MonoBehaviour {
 
@@ -17,56 +18,72 @@ public class GenerateBlueNoiseMap : MonoBehaviour {
     public GameObject dot;
     public GameObject centroid;
     public GameObject cell;
-    public GameObject mainCamera;
 
     public List<Vertex> points;
     public List<Triangle> triangles;
     public List<Vector3> centroids;
     public List<GameObject> cells;
 
-    // Use this for initialization
-    void Start () {
-        var startTime = System.DateTime.Now;
-        var timer = System.DateTime.Now - startTime;
-        Debug.Log("Start " + timer);
+    private void Start()
+    {
+        GenerateMap();
+    }
+
+    void GenerateMap()
+    {
+        var startTime = DateTime.Now;
         
-        points = GenerateSeedPoints.PoissonDiscSampling(rMin, rMax, 30, mapSize, mainCamera);
-        List<Vertex> scaffolding = GenerateSeedPoints.Scaffolding(mapSize);
+        points = BlueNoiseGenerator.PoissonDiscSampling(rMin, rMax, 30, mapSize);
+        List<Vertex> scaffolding = BlueNoiseGenerator.Scaffolding(mapSize);
         points.AddRange(scaffolding);
-        timer = System.DateTime.Now - startTime;
-        Debug.Log("SeedPoints Done " + timer);
+
+        var duration = DateTime.Now - startTime;
+        Debug.Log("SeedPoints Done in " + duration.TotalSeconds + "s");
+        startTime = DateTime.Now;
 
         List<Triangle> convexPoly = Triangulation.TriangulateConvexPolygon(scaffolding);
         triangles = Triangulation.TriangleSplittingAlgorithm(points, convexPoly);
         //triangles = Triangulation.IncrementalAlgorithm(points);
-        timer = System.DateTime.Now - startTime;
-        Debug.Log("Triangulation Done " + timer);
+
+        duration = DateTime.Now - startTime;
+        Debug.Log("Triangulation Done in " + duration.TotalSeconds + "s");
+        startTime = DateTime.Now;
 
         triangles = DelaunayTriangulation.MakeTriangulationDelaunay(triangles);
-        timer = System.DateTime.Now - startTime;
-        Debug.Log("Delaunayification Done " + timer);
+
+        duration = DateTime.Now - startTime;
+        Debug.Log("Delaunayification Done in " + duration.TotalSeconds + "s");
+        startTime = DateTime.Now;
 
         triangles = DelaunayTriangulation.FillInNeighbours(triangles);
-        timer = System.DateTime.Now - startTime;
-        Debug.Log("Neighbours Done " + timer);
+
+        duration = DateTime.Now - startTime;
+        Debug.Log("Neighbours Done in " + duration.TotalSeconds + "s");
+        startTime = DateTime.Now;
 
         // fill heightmap into y coordinates
         points = HeightField.PerlinIsland(points, mapSize, 0.1f, 0.7f, 4f, 3f, 6);
-        timer = System.DateTime.Now - startTime;
-        Debug.Log("Heightmap Done " + timer);
+
+        duration = DateTime.Now - startTime;
+        Debug.Log("Heightmap Done in " + duration.TotalSeconds + "s");
+        startTime = DateTime.Now;
 
         triangles = Voronoi.GenerateCentroids(triangles, points);
-        timer = System.DateTime.Now - startTime;
-        Debug.Log("Centroids Done " + timer);
+
+        duration = DateTime.Now - startTime;
+        Debug.Log("Centroids Done in " + duration.TotalSeconds + "s");
+        startTime = DateTime.Now;
 
         cells = CellMeshCreator.SpawnMeshes(points, cell);
-        timer = System.DateTime.Now - startTime;
-        Debug.Log("Meshes Done " + timer);
 
-        DebugDraw();
-        timer = System.DateTime.Now - startTime;
-        Debug.Log("Finished " + timer);
-    }
+        duration = DateTime.Now - startTime;
+        Debug.Log("Meshes Done in " + duration.TotalSeconds + "s");
+
+        var camHeight = mapSize * 0.5f / Mathf.Tan(Camera.main.fieldOfView * 0.5f * Mathf.Deg2Rad);
+        Camera.main.transform.position = new Vector3(mapSize / 2, camHeight * 1.1f, mapSize / 2);
+
+        //DebugDraw();
+    } 
 
     private void DebugDraw()
     {

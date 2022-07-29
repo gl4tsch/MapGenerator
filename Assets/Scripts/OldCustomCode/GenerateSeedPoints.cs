@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using DelaunatorSharp.Unity;
 
-public static class GenerateSeedPoints {
+public static class BlueNoiseGenerator {
 
     private static List<Vertex> dotList;
     private static int[][] backgroundGrid;
@@ -19,7 +20,7 @@ public static class GenerateSeedPoints {
         return scaffolding;
     }
 
-    public static List<Vertex> PoissonDiscSampling(float rMin, float rMax, int rejectionLimit, float mapSize, GameObject mainCamera)
+    public static List<Vertex> PoissonDiscSampling(float rMin, float rMax, int rejectionLimit, float mapSize)
     {
         /* Step 0.
          * Initialize an n-dimensional background grid for storing
@@ -164,9 +165,7 @@ public static class GenerateSeedPoints {
                 activeSamples.RemoveAt(chosenIndex);
             }
         }
-
-        mainCamera.transform.Translate(new Vector3(mapSize / 2, mapSize / 2, 0));
-        mainCamera.GetComponent<Camera>().orthographicSize = mapSize / 2 + cellSize + cellSize;
+        
         return dotList;
     }
 
