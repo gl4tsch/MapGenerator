@@ -51,11 +51,13 @@ public class MapGenerator : MonoBehaviour
         if (delaunayVisualsContainer != null)
         {
             Destroy(delaunayVisualsContainer.gameObject);
+            delaunayVisualsContainer = null;
         }
 
         if(voronoiVisualContainer != null)
         {
             Destroy(voronoiVisualContainer.gameObject);
+            voronoiVisualContainer = null;
         }
     }
 
@@ -89,8 +91,10 @@ public class MapGenerator : MonoBehaviour
         if (delaunator == null)
             return;
 
-        if(delaunayVisualsContainer == null)
-        delaunayVisualsContainer = new GameObject("Delaunay Visuals").transform;
+        if (delaunayVisualsContainer == null)
+        {
+            delaunayVisualsContainer = new GameObject("Delaunay Visuals").transform;
+        }
 
         delaunator.ForEachTriangleEdge(edge =>
         {
@@ -111,8 +115,10 @@ public class MapGenerator : MonoBehaviour
         if (delaunator == null)
             return;
 
-        if(voronoiVisualContainer == null)
+        if (voronoiVisualContainer == null)
+        {
             voronoiVisualContainer = new GameObject("Voronoi Visuals").transform;
+        }
 
         delaunator.ForEachVoronoiEdge(edge =>
         {
