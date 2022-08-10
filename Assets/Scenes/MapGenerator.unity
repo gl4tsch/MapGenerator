@@ -371,12 +371,12 @@ MonoBehaviour:
   mapSize: 40
   rMin: 1
   lineMaterial: {fileID: 2100000, guid: 960721c498947f649a98d641bf0caf10, type: 2}
-  drawDelaunayPoints: 0
-  drawDelaunayEdges: 0
+  drawDelaunayPoints: 1
+  drawDelaunayEdges: 1
   delaunayPointPrefab: {fileID: 1865445810895636, guid: c1250628a8a5e5442a0b8132e01aaacb,
     type: 3}
   delaunayEdgeColor: {r: 1, g: 0, b: 0, a: 1}
-  drawVoronoiPoints: 1
+  drawVoronoiPoints: 0
   drawVoronoiEdges: 1
   voronoiPointPrefab: {fileID: 1812788073468556, guid: 6ba34682a4791a64e85c8d457f152659,
     type: 3}
