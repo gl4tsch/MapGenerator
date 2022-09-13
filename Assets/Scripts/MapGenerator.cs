@@ -74,8 +74,8 @@ public class MapGenerator : MonoBehaviour
         DrawDelaunay();
         DrawVoronoi();
 
-        // fill heightmap into y coordinates
-        pointHeights = HeightField.PerlinIsland(blueNoisePoints, mapSize, 0.1f, 0.7f, 4f, 3f, 6);
+        // fill heightmap
+        pointHeights = PerlinIslands(blueNoisePoints, mapSize, 0f, .7f, 4f, 4f, 6);
 
         map = new Map(blueNoisePoints.Count);
         SpawnCells(delaunator, blueNoisePoints, pointHeights);
@@ -116,8 +116,8 @@ public class MapGenerator : MonoBehaviour
         {
             // top face
             tris.Add(topCornerPositions.Count); // middle
-            tris.Add(c); // current corner
             tris.Add((c + 1) % topCornerPositions.Count); // next corner
+            tris.Add(c); // current corner
 
             // side faces
             verts.Add(verts[c]); // top right
@@ -126,11 +126,11 @@ public class MapGenerator : MonoBehaviour
             verts.Add(new Vector3(verts[(c + 1) % topCornerPositions.Count].x, 0, verts[(c + 1) % topCornerPositions.Count].z)); // bottom left
 
             tris.Add(verts.Count - 4); // top right
-            tris.Add(verts.Count - 3); // bottom right
-            tris.Add(verts.Count - 2); // top left
             tris.Add(verts.Count - 2); // top left
             tris.Add(verts.Count - 3); // bottom right
+            tris.Add(verts.Count - 2); // top left
             tris.Add(verts.Count - 1); // bottom left
+            tris.Add(verts.Count - 3); // bottom right
         }
 
         mesh.vertices = verts.ToArray();
@@ -146,6 +146,33 @@ public class MapGenerator : MonoBehaviour
         {
             yield return delaunator.Triangles[e];
         }
+    }
+
+    // HeightField
+    List<float> PerlinIslands(List<Vector2> points, float mapSize, float yShift, float edgeDown, float dropOffScale, float frequency, int numElevationLevels)
+    {
+        float a = yShift;               // y shift
+        float b = edgeDown;             // push edges down
+        float c = dropOffScale;         // drop off scale
+        float d = 0f;                   // normalized distance from center
+        float f = frequency;            // frequency
+        float e = numElevationLevels;   // # elevation levels
+        var r = Random.Range(0, 1000);  // random offset
+
+        List<float> outPointHeights = new List<float>();
+
+        foreach (var p in points)
+        {
+            var nx = p.x / mapSize; // normalized position relative to center
+            var nz = p.y / mapSize;
+            d = 2 * Mathf.Sqrt(nx * nx + nz * nz); //2 * Mathf.Max(Mathf.Abs(nx), Mathf.Abs(nz)); // Manhatten Distance
+            var h = Mathf.PerlinNoise(p.x / mapSize * f + r, p.y / mapSize * f + r);
+            h = (h + a) * (1 - b * Mathf.Pow(d, c));
+            h = Mathf.Round(h * e) / (e-1); // round to fix number of elevation levels
+            h = Mathf.Clamp01(h);
+            outPointHeights.Add(h);
+        }
+        return outPointHeights;
     }
 
     void DrawDelaunay()

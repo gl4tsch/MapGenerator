@@ -71,9 +71,9 @@ public class HeightField
 
         foreach (var p in points)
         {
-            var nx = (p.x - (mapSize / 2)) / mapSize; // normalized position relative to center
-            var nz = (p.y - (mapSize / 2)) / mapSize;
-            d = 2 * Mathf.Max(Mathf.Abs(nx), Mathf.Abs(nz)); // Manhatten Distance
+            var nx = p.x / mapSize; // normalized position relative to center
+            var nz = p.y / mapSize;
+            d = Mathf.Sqrt(nx * nx + nz * nz); //2 * Mathf.Max(Mathf.Abs(nx), Mathf.Abs(nz)); // Manhatten Distance
             var h = Mathf.PerlinNoise(p.x / mapSize * f + r, p.y / mapSize * f + r);
             //p.position.y = e;
             h = (h + a) * (1 - b * Mathf.Pow(d, c));

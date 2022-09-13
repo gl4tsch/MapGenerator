@@ -19,6 +19,7 @@ public class Cell : MonoBehaviour
         neighbourIdx = neighbours;
 
         gameObject.GetComponent<MeshFilter>().mesh = mesh;
+        GetComponent<Renderer>().material.color = Color.Lerp(Color.blue, Color.green, height);
         transform.position = new Vector3(center.x, 0, center.y);
     }
 
