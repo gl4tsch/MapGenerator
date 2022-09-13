@@ -24,11 +24,14 @@ public class MapGenerator : MonoBehaviour
     [SerializeField] GameObject voronoiPointPrefab;
     [SerializeField] Color voronoiEdgeColor = Color.cyan;
 
+    [Header("Cell")]
+    [SerializeField] Cell cellPrefab;
+
     Transform delaunayVisualsContainer, voronoiVisualContainer;
 
     List<Vector2> blueNoisePoints;
+    List<float> pointHeights;
     Delaunator delaunator; // data in 2D
-    List<Vector3> cellPoints;
     Map map;
 
     private void Start()
@@ -72,24 +75,68 @@ public class MapGenerator : MonoBehaviour
         DrawVoronoi();
 
         // fill heightmap into y coordinates
-        cellPoints = HeightField.PerlinIsland(blueNoisePoints, mapSize, 0.1f, 0.7f, 4f, 3f, 6);
+        pointHeights = HeightField.PerlinIsland(blueNoisePoints, mapSize, 0.1f, 0.7f, 4f, 3f, 6);
 
-        map = new Map(cellPoints.Count);
-        SpawnCells(delaunator, cellPoints);
+        map = new Map(blueNoisePoints.Count);
+        SpawnCells(delaunator, blueNoisePoints, pointHeights);
 
         var camHeight = mapSize * 0.5f / Mathf.Tan(Camera.main.fieldOfView * 0.5f * Mathf.Deg2Rad);
         Camera.main.transform.position = new Vector3(0, camHeight * 1.1f, 0);
     }
 
-    void SpawnCells(Delaunator delaunator, List<Vector3> cellCenters)
+    void SpawnCells(Delaunator delaunator, List<Vector2> cellPositions, List<float> cellHeights)
     {
+        var mapContainer = new GameObject("Map").transform;
         delaunator.ForEachVoronoiCell(dCell =>
         {
-            var center = cellCenters[dCell.Index];
+            var center = cellPositions[dCell.Index];
+            float height = cellHeights[dCell.Index];
             List<int> neighbours = GetNeighbours(dCell.Index).ToList();
-            Cell cell = new GameObject("Cell" + dCell.Index).AddComponent<Cell>();
-            cell.Init(map, dCell, center, neighbours);
+            Mesh cellMesh = BuildMeshForCell(dCell, center, height);
+
+            Cell cell = Instantiate(cellPrefab, new Vector3(center.x, 0, center.y), Quaternion.identity, mapContainer);
+            cell.Init(map, center, height, neighbours, cellMesh);
         });
+    }
+
+    Mesh BuildMeshForCell(IVoronoiCell cornerData, Vector2 center, float height)
+    {
+        List<Vector2> localCornerPositions = cornerData.Points.Select(p => p.ToVector2() - center).ToList();
+        List<Vector3> topCornerPositions = localCornerPositions.Select(p => new Vector3(p.x, height, p.y)).ToList();
+
+        Mesh mesh = new Mesh();
+
+        List<Vector3> verts = new List<Vector3>();
+        List<int> tris = new List<int>();
+
+        verts.InsertRange(0, topCornerPositions); // centroids as top
+        verts.Add(Vector3.up * height); // add top middle vertex
+
+        for (int c = 0; c < topCornerPositions.Count; c++) // triangulation
+        {
+            // top face
+            tris.Add(topCornerPositions.Count); // middle
+            tris.Add(c); // current corner
+            tris.Add((c + 1) % topCornerPositions.Count); // next corner
+
+            // side faces
+            verts.Add(verts[c]); // top right
+            verts.Add(new Vector3(verts[c].x, 0, verts[c].z)); // bottom right
+            verts.Add(verts[(c + 1) % topCornerPositions.Count]); // top left
+            verts.Add(new Vector3(verts[(c + 1) % topCornerPositions.Count].x, 0, verts[(c + 1) % topCornerPositions.Count].z)); // bottom left
+
+            tris.Add(verts.Count - 4); // top right
+            tris.Add(verts.Count - 3); // bottom right
+            tris.Add(verts.Count - 2); // top left
+            tris.Add(verts.Count - 2); // top left
+            tris.Add(verts.Count - 3); // bottom right
+            tris.Add(verts.Count - 1); // bottom left
+        }
+
+        mesh.vertices = verts.ToArray();
+        mesh.triangles = tris.ToArray();
+        mesh.RecalculateNormals();
+        return mesh;
     }
 
     // Delaunator extension

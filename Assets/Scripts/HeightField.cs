@@ -47,7 +47,7 @@ public class HeightField
     }
 
     /// <summary>
-    /// fills height into y coordinates
+    /// 
     /// </summary>
     /// <param name="points"></param>
     /// <param name="mapSize"></param>
@@ -56,7 +56,8 @@ public class HeightField
     /// <param name="dropOffScale"></param>
     /// <param name="frequency"></param>
     /// <param name="numElevationLevels"></param>
-    public static List<Vector3> PerlinIsland(List<Vector2> points, float mapSize, float yShift, float edgeDown, float dropOffScale, float frequency, int numElevationLevels)
+    /// <returns>height list corresponding to input points</returns>
+    public static List<float> PerlinIsland(List<Vector2> points, float mapSize, float yShift, float edgeDown, float dropOffScale, float frequency, int numElevationLevels)
     {
         float a = yShift;               // y shift
         float b = edgeDown;             // push edges down
@@ -66,7 +67,7 @@ public class HeightField
         float e = numElevationLevels;   // # elevation levels
         var r = Random.Range(0, 1000);  // random offset
 
-        List<Vector3> outPoints = new List<Vector3>();
+        List<float> outPointHeights = new List<float>();
 
         foreach (var p in points)
         {
@@ -77,8 +78,8 @@ public class HeightField
             //p.position.y = e;
             h = (h + a) * (1 - b * Mathf.Pow(d, c));
             h = Mathf.Round(h * e) / e; // round to fix number of elevation levels
-            outPoints.Add(new Vector3(p.x, h, p.y));
+            outPointHeights.Add(h);
         }
-        return outPoints;
+        return outPointHeights;
     }
 }

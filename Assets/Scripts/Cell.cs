@@ -5,14 +5,21 @@ using UnityEngine;
 
 public class Cell : MonoBehaviour
 {
-    public Vector3 Center { get; set; }
+    public Vector2 Center { get; set; }
+    public float Height { get; set; }
 
     List<int> neighbourIdx;
     Map map;
 
-    public void Init(Map map, IVoronoiCell cellData, Vector3 center, List<int> neighbours)
+    public void Init(Map map, Vector2 center, float height, List<int> neighbours, Mesh mesh)
     {
+        this.map = map;
+        Center = center;
+        Height = height;
         neighbourIdx = neighbours;
+
+        gameObject.GetComponent<MeshFilter>().mesh = mesh;
+        transform.position = new Vector3(center.x, 0, center.y);
     }
 
     public IEnumerable<Cell> GetNeighbours()
