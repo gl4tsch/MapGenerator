@@ -108,6 +108,7 @@ public class MapGenerator : MonoBehaviour
 
         List<Vector3> verts = new List<Vector3>();
         List<int> tris = new List<int>();
+        List<Color> colors = new List<Color>(); // for border shader
 
         verts.InsertRange(0, topCornerPositions); // centroids as top
         verts.Add(Vector3.up * height); // add top middle vertex
@@ -133,8 +134,22 @@ public class MapGenerator : MonoBehaviour
             tris.Add(verts.Count - 3); // bottom right
         }
 
+        // fill colors
+        int i = 0;
+        // start with top face excluding middle vert
+        for(; i < topCornerPositions.Count; i++)
+        {
+            colors.Add(Color.red); // red for top face border vertices
+        }
+        // continue after top face corner verts
+        for(; i < verts.Count; i++)
+        {
+            colors.Add(Color.black); // black for no border in shader
+        }
+
         mesh.vertices = verts.ToArray();
         mesh.triangles = tris.ToArray();
+        mesh.colors = colors.ToArray();
         mesh.RecalculateNormals();
         return mesh;
     }
