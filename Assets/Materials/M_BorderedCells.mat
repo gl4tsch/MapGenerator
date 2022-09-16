@@ -91,7 +91,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - BorderThickness: 1
+    - BorderThickness: 1.5
     - Metallic: 0
     - Smoothness: 0.5
     - _AlphaClip: 0
