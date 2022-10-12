@@ -176,6 +176,7 @@ public class MapGenerator : MonoBehaviour
 
         List<float> outPointHeights = new List<float>();
 
+        float maxH = Mathf.NegativeInfinity;
         foreach (var p in points)
         {
             var nx = p.x / mapSize; // normalized position relative to center
@@ -183,9 +184,17 @@ public class MapGenerator : MonoBehaviour
             d = 2 * Mathf.Sqrt(nx * nx + nz * nz); //2 * Mathf.Max(Mathf.Abs(nx), Mathf.Abs(nz)); // Manhatten Distance
             var h = Mathf.PerlinNoise(p.x / mapSize * f + r, p.y / mapSize * f + r);
             h = (h + a) * (1 - b * Mathf.Pow(d, c));
-            h = Mathf.Round(h * e) / (e-1); // round to fix number of elevation levels
-            h = Mathf.Clamp01(h);
+            // add unrounded for now
+            maxH = Mathf.Max(maxH, h);
             outPointHeights.Add(h);
+        }
+        for (int i = 0; i < outPointHeights.Count; i++)
+        {
+            float h = outPointHeights[i];
+            h = h.Map(0, maxH, 0, 1);
+            h = Mathf.Clamp01(h);
+            h = Mathf.Round(h * e) / e; // round to fix number of elevation levels
+            outPointHeights[i] = h;
         }
         return outPointHeights;
     }
