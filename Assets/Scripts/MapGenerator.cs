@@ -31,7 +31,9 @@ public class MapGenerator : MonoBehaviour
 
     List<Vector2> blueNoisePoints;
     List<float> pointHeights;
+    // https://mapbox.github.io/delaunator/
     Delaunator delaunator; // data in 2D
+    int[] pointToIncomingHalfEdge; // this[idx] => incoming halfedge id of point idx
     Map map;
 
     private void Start()
@@ -74,8 +76,22 @@ public class MapGenerator : MonoBehaviour
         DrawDelaunay();
         DrawVoronoi();
 
+        // fill point->incomingHalfedge helper
+        pointToIncomingHalfEdge = new int[delaunator.Points.Length];
+        for (int i = 0; i < pointToIncomingHalfEdge.Length; i++)
+        {
+            pointToIncomingHalfEdge[i] = -1;
+        }
+        for (int e = 0; e < delaunator.Triangles.Length; e++)
+        {
+            var endPoint = delaunator.Triangles[Delaunator.NextHalfedge(e)];
+            if (pointToIncomingHalfEdge[endPoint] != -1 || endPoint == -1)
+                continue;
+            pointToIncomingHalfEdge[endPoint] = e;
+        }
+
         // fill heightmap
-        pointHeights = PerlinIslands(blueNoisePoints, mapSize, 0f, .7f, 4f, 4f, 6);
+        pointHeights = HeightField.PerlinIslands(blueNoisePoints, mapSize, 0f, .7f, 4f, 4f, 6);
 
         map = new Map(blueNoisePoints.Count);
         SpawnCells(delaunator, blueNoisePoints, pointHeights);
@@ -89,20 +105,33 @@ public class MapGenerator : MonoBehaviour
         var mapContainer = new GameObject("Map").transform;
         delaunator.ForEachVoronoiCell(dCell =>
         {
-            var center = cellPositions[dCell.Index];
+            Vector2 center = cellPositions[dCell.Index];
             float height = cellHeights[dCell.Index];
             List<int> neighbours = GetNeighbours(dCell.Index).ToList();
             Mesh cellMesh = BuildMeshForCell(dCell, center, height);
 
-            Cell cell = Instantiate(cellPrefab, new Vector3(center.x, 0, center.y), Quaternion.identity, mapContainer);
+            Cell cell = Instantiate(cellPrefab, new Vector3(center.x, height, center.y), Quaternion.identity, mapContainer);
             cell.Init(map, center, height, neighbours, cellMesh);
         });
+    }
+
+    // Delaunator extension
+    IEnumerable<int> GetNeighbours(int point)
+    {
+        // delaunay.triangles[halfedgeID] => pointID where halfedge starts
+        // delaunay.halfedges[halfedgeID] => opposite halfedge in adjacent triangle
+        // delaunator.EdgesAroundPoint takes any incoming halfedgeID to a point, so a point -> incoming halfedge function is needed
+        int anyIncomingHalfedgeId = pointToIncomingHalfEdge[point];
+        foreach (var e in delaunator.EdgesAroundPoint(anyIncomingHalfedgeId))
+        {
+            yield return delaunator.Triangles[e];
+        }
     }
 
     Mesh BuildMeshForCell(IVoronoiCell cornerData, Vector2 center, float height)
     {
         List<Vector2> localCornerPositions = cornerData.Points.Select(p => p.ToVector2() - center).ToList();
-        List<Vector3> topCornerPositions = localCornerPositions.Select(p => new Vector3(p.x, height, p.y)).ToList();
+        List<Vector3> topCornerPositions = localCornerPositions.Select(p => new Vector3(p.x, 0, p.y)).ToList();
 
         Mesh mesh = new Mesh();
 
@@ -111,7 +140,7 @@ public class MapGenerator : MonoBehaviour
         List<Color> colors = new List<Color>(); // for border shader
 
         verts.InsertRange(0, topCornerPositions); // centroids as top
-        verts.Add(Vector3.up * height); // add top middle vertex
+        verts.Add(Vector3.zero); // add top middle vertex
 
         for (int c = 0; c < topCornerPositions.Count; c++) // triangulation
         {
@@ -122,9 +151,9 @@ public class MapGenerator : MonoBehaviour
 
             // side faces
             verts.Add(verts[c]); // top right
-            verts.Add(new Vector3(verts[c].x, 0, verts[c].z)); // bottom right
+            verts.Add(new Vector3(verts[c].x, -height, verts[c].z)); // bottom right
             verts.Add(verts[(c + 1) % topCornerPositions.Count]); // top left
-            verts.Add(new Vector3(verts[(c + 1) % topCornerPositions.Count].x, 0, verts[(c + 1) % topCornerPositions.Count].z)); // bottom left
+            verts.Add(new Vector3(verts[(c + 1) % topCornerPositions.Count].x, -height, verts[(c + 1) % topCornerPositions.Count].z)); // bottom left
 
             tris.Add(verts.Count - 4); // top right
             tris.Add(verts.Count - 2); // top left
@@ -152,51 +181,6 @@ public class MapGenerator : MonoBehaviour
         mesh.colors = colors.ToArray();
         mesh.RecalculateNormals();
         return mesh;
-    }
-
-    // Delaunator extension
-    IEnumerable<int> GetNeighbours(int point)
-    {
-        foreach(var e in delaunator.EdgesAroundPoint(point))
-        {
-            yield return delaunator.Triangles[e];
-        }
-    }
-
-    // HeightField
-    List<float> PerlinIslands(List<Vector2> points, float mapSize, float yShift, float edgeDown, float dropOffScale, float frequency, int numElevationLevels)
-    {
-        float a = yShift;               // y shift
-        float b = edgeDown;             // push edges down
-        float c = dropOffScale;         // drop off scale
-        float d = 0f;                   // normalized distance from center
-        float f = frequency;            // frequency
-        float e = numElevationLevels;   // # elevation levels
-        var r = Random.Range(0, 1000);  // random offset
-
-        List<float> outPointHeights = new List<float>();
-
-        float maxH = Mathf.NegativeInfinity;
-        foreach (var p in points)
-        {
-            var nx = p.x / mapSize; // normalized position relative to center
-            var nz = p.y / mapSize;
-            d = 2 * Mathf.Sqrt(nx * nx + nz * nz); //2 * Mathf.Max(Mathf.Abs(nx), Mathf.Abs(nz)); // Manhatten Distance
-            var h = Mathf.PerlinNoise(p.x / mapSize * f + r, p.y / mapSize * f + r);
-            h = (h + a) * (1 - b * Mathf.Pow(d, c));
-            // add unrounded for now
-            maxH = Mathf.Max(maxH, h);
-            outPointHeights.Add(h);
-        }
-        for (int i = 0; i < outPointHeights.Count; i++)
-        {
-            float h = outPointHeights[i];
-            h = h.Map(0, maxH, 0, 1);
-            h = Mathf.Clamp01(h);
-            h = Mathf.Round(h * e) / e; // round to fix number of elevation levels
-            outPointHeights[i] = h;
-        }
-        return outPointHeights;
     }
 
     void DrawDelaunay()

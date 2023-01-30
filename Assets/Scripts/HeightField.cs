@@ -82,4 +82,40 @@ public class HeightField
         }
         return outPointHeights;
     }
+
+    // new format
+    public static List<float> PerlinIslands(List<Vector2> points, float mapSize, float yShift, float edgeDown, float dropOffScale, float frequency, int numElevationLevels)
+    {
+        float a = yShift;               // y shift
+        float b = edgeDown;             // push edges down
+        float c = dropOffScale;         // drop off scale
+        float d = 0f;                   // normalized distance from center
+        float f = frequency;            // frequency
+        float e = numElevationLevels;   // # elevation levels
+        var r = Random.Range(0, 1000);  // random offset
+
+        List<float> outPointHeights = new List<float>();
+
+        float maxH = Mathf.NegativeInfinity;
+        foreach (var p in points)
+        {
+            var nx = p.x / mapSize; // normalized position relative to center
+            var nz = p.y / mapSize;
+            d = 2 * Mathf.Sqrt(nx * nx + nz * nz); //2 * Mathf.Max(Mathf.Abs(nx), Mathf.Abs(nz)); // Manhatten Distance
+            var h = Mathf.PerlinNoise(p.x / mapSize * f + r, p.y / mapSize * f + r);
+            h = (h + a) * (1 - b * Mathf.Pow(d, c));
+            // add unrounded for now
+            maxH = Mathf.Max(maxH, h);
+            outPointHeights.Add(h);
+        }
+        for (int i = 0; i < outPointHeights.Count; i++)
+        {
+            float h = outPointHeights[i];
+            h = h.Map(0, maxH, 0, 1);
+            h = Mathf.Clamp01(h);
+            h = Mathf.Round(h * e) / e; // round to fix number of elevation levels
+            outPointHeights[i] = h;
+        }
+        return outPointHeights;
+    }
 }

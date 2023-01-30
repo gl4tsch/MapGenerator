@@ -5,8 +5,8 @@ using UnityEngine;
 public static class Helper
 {
     // Maps a value from ome arbitrary range to another arbitrary range
-    public static float Map(this float value, float leftMin, float leftMax, float rightMin, float rightMax)
+    public static float Map(this float value, float fromMin, float fromMax, float toMin, float toMax)
     {
-        return rightMin + (value - leftMin) * (rightMax - rightMin) / (leftMax - leftMin);
+        return toMin + (value - fromMin) * (toMax - toMin) / (fromMax - fromMin);
     }
 }
