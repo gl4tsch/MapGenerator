@@ -1,9 +1,11 @@
 using DelaunatorSharp;
 using DelaunatorSharp.Unity;
 using DelaunatorSharp.Unity.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class MapGenerator : MonoBehaviour
 {
@@ -68,8 +70,10 @@ public class MapGenerator : MonoBehaviour
         }
     }
 
-    public void GenerateMap(float mapSize, float delaunayRMin)
+    public void GenerateMap(float mapSize, float delaunayRMin, int? seed = null)
     {
+        Random.InitState(seed ?? (int)DateTime.Now.Ticks);
+
         blueNoisePoints = UniformPoissonDiskSampler.SampleCircle(Vector2.zero, mapSize / 2, delaunayRMin);
         delaunator = new Delaunator(blueNoisePoints.ToPoints());
 

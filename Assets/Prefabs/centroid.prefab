@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 33377323388756870}
   - component: {fileID: 23544881094434896}
   m_Layer: 0
-  m_Name: centroid
+  m_Name: Centroid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
