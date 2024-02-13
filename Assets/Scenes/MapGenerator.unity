@@ -545,7 +545,7 @@ MonoBehaviour:
   cam: {fileID: 282840813}
   yRotSpeed: 20
   xRotSpeed: 10
-  zoomSpeed: 10
+  zoomSpeed: -150
   clampYAngle: 0
   minYAngle: -180
   maxYAngle: 180

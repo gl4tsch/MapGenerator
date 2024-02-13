@@ -57,7 +57,7 @@ public class OrbitCameraController : MonoBehaviour
         }
         if (Input.mouseScrollDelta != Vector2.zero)
         {
-            Zoom(Input.mouseScrollDelta.x);
+            Zoom(Input.mouseScrollDelta.y);
         }
     }
 
@@ -84,8 +84,8 @@ public class OrbitCameraController : MonoBehaviour
 
     public virtual void Zoom(float zoomValue)
     {
-        float newDist = distanceTransform.localPosition.z + zoomValue * zoomSpeed * 0.01f;
-        newDist = Mathf.Clamp(newDist, maxCamDistance, minCamDistance);
+        float newDist = distanceTransform.localPosition.magnitude + zoomValue * zoomSpeed * 0.01f;
+        newDist = Mathf.Clamp(newDist, minCamDistance, maxCamDistance);
         newDist = Mathf.Abs(newDist);
         SetZoomDistance(newDist);
     }
