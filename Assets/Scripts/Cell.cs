@@ -1,40 +1,28 @@
 using DelaunatorSharp;
+using DelaunatorSharp.Unity.Extensions;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
+using System.Linq;
 using UnityEngine;
 
-public class Cell : MonoBehaviour
+public class Cell
 {
-    public Vector2 Center { get; set; }
-    public float Height { get; set; }
-    [SerializeField] Gradient numberColors;
+    public Vector2 Center { get; private set; }
+    public float Height { get; private set; }
+    public IVoronoiCell CornerData { get; private set; }
+    public List<int> NeighbourIdx { get; private set; }
+    public List<Cell> Neighbours { get; private set; }
 
-    List<int> neighbourIdx;
-    Map map;
-
-    public void Init(Map map, Vector2 center, float height, List<int> neighbours, Mesh mesh)
+    public Cell(Vector2 center, float height, IVoronoiCell cornerData, List<int> neighbourIdx)
     {
-        this.map = map;
         Center = center;
         Height = height;
-        neighbourIdx = neighbours;
-
-        gameObject.GetComponent<MeshFilter>().mesh = mesh;
-        GetComponent<Renderer>().material.color = Color.Lerp(Color.blue, Color.green, height);
-        transform.position = new Vector3(center.x, height, center.y);
-
-        // neighbour count text
-        var neighbourCountLabel = GetComponentInChildren<TextMeshPro>();
-        neighbourCountLabel.text = neighbourIdx.Count.ToString();
-        neighbourCountLabel.color = numberColors.Evaluate(((float)neighbourIdx.Count).Map(4, 10, 0, 1));
+        CornerData = cornerData;
+        NeighbourIdx = neighbourIdx;
     }
 
-    public IEnumerable<Cell> GetNeighbours()
+    public void SetNeighbours(List<Cell> neighbours)
     {
-        foreach(int n in neighbourIdx)
-        {
-            yield return map.Cells[n];
-        }
+        Neighbours = neighbours;
     }
 }
