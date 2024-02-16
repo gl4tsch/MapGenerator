@@ -250,6 +250,7 @@ GameObject:
   - component: {fileID: 282840813}
   - component: {fileID: 282840811}
   - component: {fileID: 282840812}
+  - component: {fileID: 282840815}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -353,41 +354,34 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 294315029}
-  m_RootOrder: 0
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
---- !u!1 &294315028
-GameObject:
+--- !u!114 &282840815
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 294315029}
-  m_Layer: 0
-  m_Name: CamX
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &294315029
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 294315028}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 282840814}
-  m_Father: {fileID: 1139049695}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_GameObject: {fileID: 282840810}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 083a52455e815e44194317a90bf8007c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  orbitCenter: {fileID: 1139049695}
+  camTransform: {fileID: 282840814}
+  yRotSpeed: 20
+  xRotSpeed: 10
+  zoomSpeed: -150
+  clampYAngle: 0
+  minYAngle: -180
+  maxYAngle: 180
+  clampXAngle: 1
+  minXAngle: -90
+  maxXAngle: 0
+  minCamDistance: 2
+  maxCamDistance: 100
 --- !u!1 &394719574
 GameObject:
   m_ObjectHideFlags: 0
@@ -519,41 +513,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1139049695}
-  - component: {fileID: 1139049694}
   m_Layer: 0
-  m_Name: CamY
+  m_Name: CamOrbitCenter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1139049694
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1139049693}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 083a52455e815e44194317a90bf8007c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  yRotTransform: {fileID: 1139049695}
-  xRotTransform: {fileID: 294315029}
-  distanceTransform: {fileID: 282840814}
-  cam: {fileID: 282840813}
-  yRotSpeed: 20
-  xRotSpeed: 10
-  zoomSpeed: -150
-  clampYAngle: 0
-  minYAngle: -180
-  maxYAngle: 180
-  clampXAngle: 1
-  minXAngle: -90
-  maxXAngle: 0
-  minCamDistance: 2
-  maxCamDistance: 100
 --- !u!4 &1139049695
 Transform:
   m_ObjectHideFlags: 0
@@ -565,8 +531,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 294315029}
+  m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

@@ -4,11 +4,8 @@ using UnityEngine;
 public class OrbitCameraController : MonoBehaviour
 {
     [Header("OrbitTransforms")]
-    [SerializeField] Transform yRotTransform;
-    [SerializeField] Transform xRotTransform;
-    [SerializeField] Transform distanceTransform;
-    [SerializeField] Camera cam;
-    public Camera Cam => cam;
+    [SerializeField] Transform orbitCenter;
+    [SerializeField] Transform camTransform;
 
     [Header("Settings")]
     [SerializeField] float yRotSpeed = 20;
@@ -33,14 +30,6 @@ public class OrbitCameraController : MonoBehaviour
     float yRotSum = 0;
     float xRotSum = 0;
     Vector2? prevMousePos = null;
-
-    private void OnValidate()
-    {
-        if (cam == null)
-        {
-            cam = Camera.main;
-        }
-    }
 
     private void Update()
     {
@@ -68,7 +57,7 @@ public class OrbitCameraController : MonoBehaviour
         // clamp
         if (!clampYAngle || (yRotSum + yRotDelta >= minYAngle && yRotSum + yRotDelta <= maxYAngle))
         {
-            yRotTransform.Rotate(Vector3.up * yRotDelta, Space.World);
+            camTransform.RotateAround(orbitCenter.position, Vector3.up, yRotDelta);
             yRotSum += yRotDelta;
         }
 
@@ -77,14 +66,15 @@ public class OrbitCameraController : MonoBehaviour
         // clamp
         if (!clampXAngle || (xRotSum + xRotDelta >= minXAngle && xRotSum + xRotDelta <= maxXAngle))
         {
-            xRotTransform.Rotate(Vector3.right * xRotDelta, Space.Self);
+            camTransform.RotateAround(orbitCenter.position, camTransform.right, xRotDelta);
             xRotSum += xRotDelta;
         }
     }
 
     public virtual void Zoom(float zoomValue)
     {
-        float newDist = distanceTransform.localPosition.magnitude + zoomValue * zoomSpeed * 0.01f;
+        float dist = (orbitCenter.position - camTransform.position).magnitude;
+        float newDist = dist + zoomValue * zoomSpeed * 0.01f;
         newDist = Mathf.Clamp(newDist, minCamDistance, maxCamDistance);
         newDist = Mathf.Abs(newDist);
         SetZoomDistance(newDist);
@@ -92,48 +82,6 @@ public class OrbitCameraController : MonoBehaviour
 
     public void SetZoomDistance(float dist)
     {
-        distanceTransform.localPosition = distanceTransform.localPosition.normalized * dist;
-    }
-
-    /// <summary>
-    /// searches for overall bounds of all mesh renderes in children and sets camera distance to get them in focus
-    /// </summary>
-    public void ResetZoomToMeshBounds(Transform target, float marginToScreenEdgePercent = 0.1f, bool includeInactive = true)
-    {
-        var allBounds = target.GetComponentsInChildren<MeshRenderer>(includeInactive).Select(m => m.bounds);
-
-        Vector3 averageCenter = Vector3.zero;
-        foreach (var bounds in allBounds)
-        {
-            averageCenter += bounds.center;
-        }
-        averageCenter /= allBounds.Count();
-
-        float minX = allBounds.Select(m => m.min.x).Min();
-        float minY = allBounds.Select(m => m.min.y).Min();
-        float minZ = allBounds.Select(m => m.min.z).Min();
-
-        float maxX = allBounds.Select(m => m.max.x).Max();
-        float maxY = allBounds.Select(m => m.max.y).Max();
-        float maxZ = allBounds.Select(m => m.max.z).Max();
-
-        Bounds combinedBounds = new Bounds(averageCenter, new Vector3(maxX - minX, maxY - minY, maxZ - minZ));
-
-        ResetZoomToBounds(combinedBounds, marginToScreenEdgePercent);
-    }
-
-    public void ResetZoomToBounds(Bounds bounds, float marginToScreenEdgePercent = 0.1f)
-    {
-        // needed height or width if camera were centered at, and looking at mesh origin
-        float neededFrustumSize = Mathf.Max(bounds.max.magnitude, bounds.min.magnitude) * 2f;
-        neededFrustumSize *= (1 + marginToScreenEdgePercent);
-
-        float isPortraitModifyer = cam.pixelWidth < cam.pixelHeight ? 1f / cam.aspect : 1f;
-
-        // https://docs.unity3d.com/Manual/FrustumSizeAtDistance.html
-        var distance = neededFrustumSize * isPortraitModifyer * 0.5f / Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad);
-        distance += cam.nearClipPlane;
-
-        SetZoomDistance(distance);
+        camTransform.position = (camTransform.position - orbitCenter.position).normalized * dist;
     }
 }
