@@ -10,7 +10,10 @@ using Random = UnityEngine.Random;
 public class MapGenerator : MonoBehaviour
 {
     [Header("Settings")]
+    [SerializeField] int seed;
+    public int Seed { get => seed; set => seed = value; }
     [SerializeField] float mapSize = 40;
+    public float MapSize { get => mapSize; set => mapSize = value; }
     [SerializeField] float rMin = 1;
 
     [Header("Visuals")]
@@ -33,22 +36,10 @@ public class MapGenerator : MonoBehaviour
     Map map = null;
     List<CellBehaviour> cellInstances = new();
 
-    private void OnValidate()
+    private void Awake()
     {
-        // ToggleDraw();
-    }
-
-    private void Start()
-    {
+        RandomizeSeed();
         GenerateNewMap();
-    }
-
-    private void Update()
-    {
-        if(Input.GetKeyDown(KeyCode.Return))
-        {
-            GenerateNewMap();
-        }
     }
 
     void Clear()
@@ -57,28 +48,41 @@ public class MapGenerator : MonoBehaviour
         if (delaunayPointsContainer != null)
         {
             Destroy(delaunayPointsContainer.gameObject);
+            delaunayPointsContainer = null;
         }
         if (delaunayEdgesContainer != null)
         {
             Destroy(delaunayEdgesContainer.gameObject);
+            delaunayEdgesContainer = null;
         }
         if (voronoiPointsContainer != null)
         {
             Destroy(voronoiPointsContainer.gameObject);
+            voronoiPointsContainer = null;
         }
         if (voronoiEdgesContainer != null)
         {
             Destroy(voronoiEdgesContainer.gameObject);
+            voronoiEdgesContainer = null;
         }
         if (cellsContainer != null)
         {
             Destroy(cellsContainer.gameObject);
+            cellsContainer = null;
         }
+    }
+
+    public int RandomizeSeed()
+    {
+        //seed = (int)DateTime.Now.Ticks;
+        seed = Random.Range(int.MinValue, int.MaxValue);
+        return seed;
     }
 
     public void GenerateNewMap()
     {
         Clear();
+        Random.InitState(seed);
         map = GenerateMap(mapSize, rMin);
         SpawnDelaunay(map);
         SpawnVoronoi(map);
@@ -86,21 +90,13 @@ public class MapGenerator : MonoBehaviour
         ToggleDraw();
     }
 
-    public Map GenerateMap(float mapSize, float delaunayRMin, int? seed = null)
+    Map GenerateMap(float mapSize, float delaunayRMin)
     {
-        Random.InitState(seed ?? (int)DateTime.Now.Ticks);
-
         List<Vector2> blueNoisePoints = UniformPoissonDiskSampler.SampleCircle(Vector2.zero, mapSize / 2, delaunayRMin);
         Delaunator delaunator = new Delaunator(blueNoisePoints.ToPoints());
         // fill heightmap
         List<float> pointHeights = HeightField.PerlinIslands(blueNoisePoints, mapSize, 0f, .7f, 4f, 4f, 6);
-
-        Map map = new Map(blueNoisePoints, delaunator, pointHeights);
-
-        var camHeight = mapSize * 0.5f / Mathf.Tan(Camera.main.fieldOfView * 0.5f * Mathf.Deg2Rad);
-        Camera.main.transform.position = new Vector3(0, camHeight * 1.1f, 0);
-
-        return map;
+        return new Map(blueNoisePoints, delaunator, pointHeights);
     }
 
     void SpawnDelaunay(Map map)
@@ -165,7 +161,7 @@ public class MapGenerator : MonoBehaviour
     {
         if (cellsContainer == null)
         {
-            cellsContainer = new GameObject("Cells").transform;
+            cellsContainer = new GameObject("Map").transform;
         }
 
         foreach (var cell in map.Cells)

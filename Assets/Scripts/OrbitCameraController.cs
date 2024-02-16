@@ -84,4 +84,11 @@ public class OrbitCameraController : MonoBehaviour
     {
         camTransform.position = (camTransform.position - orbitCenter.position).normalized * dist;
     }
+
+    public void ResetCamera()
+    {
+        //var camHeight = mapSize * 0.5f / Mathf.Tan(Camera.main.fieldOfView * 0.5f * Mathf.Deg2Rad);
+        //Camera.main.transform.position = new Vector3(0, camHeight * 1.1f, 0);
+        //Camera.main.transform.LookAt(Vector3.zero);
+    }
 }

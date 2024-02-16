@@ -47,7 +47,6 @@ public class Map
     void GenerateCells(Delaunator delaunator, List<Vector2> cellPositions, List<float> cellHeights)
     {
         Cells = new List<Cell>(cellPositions.Count);
-        var mapContainer = new GameObject("Map").transform;
         delaunator.ForEachVoronoiCell(dCell =>
         {
             Vector2 center = cellPositions[dCell.Index];
