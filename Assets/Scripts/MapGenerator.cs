@@ -14,7 +14,8 @@ public class MapGenerator : MonoBehaviour
     public int Seed { get => seed; set => seed = value; }
     [SerializeField] float mapSize = 40;
     public float MapSize { get => mapSize; set => mapSize = value; }
-    [SerializeField] float rMin = 1;
+    [SerializeField] float poissonDiscRadius = 1;
+    public float PoissonDiscRadius { get => poissonDiscRadius; set => poissonDiscRadius = value; }
 
     [Header("Visuals")]
     [SerializeField] bool drawDelaunayPoints;
@@ -31,6 +32,15 @@ public class MapGenerator : MonoBehaviour
     [SerializeField] CellBehaviour cellPrefab;
     [SerializeField] bool drawCells;
     [SerializeField] bool showNeighbourCounts;
+    public bool ShowNeighbourCounts
+    {
+        get => showNeighbourCounts;
+        set
+        {
+            showNeighbourCounts = value;
+            ToggleDraw();
+        }
+    }
 
     Transform delaunayPointsContainer, delaunayEdgesContainer, voronoiPointsContainer, voronoiEdgesContainer, cellsContainer;
     Map map = null;
@@ -39,7 +49,7 @@ public class MapGenerator : MonoBehaviour
     private void Awake()
     {
         RandomizeSeed();
-        GenerateNewMap();
+        GenerateMap();
     }
 
     void Clear()
@@ -79,20 +89,18 @@ public class MapGenerator : MonoBehaviour
         return seed;
     }
 
-    public void GenerateNewMap()
+    public void GenerateMap()
     {
         Clear();
         Random.InitState(seed);
-        map = GenerateMap(mapSize, rMin);
-        SpawnDelaunay(map);
-        SpawnVoronoi(map);
+        map = GenerateMap(mapSize, poissonDiscRadius);
         SpawnCells(map);
         ToggleDraw();
     }
 
-    Map GenerateMap(float mapSize, float delaunayRMin)
+    Map GenerateMap(float mapSize, float poissonRadius)
     {
-        List<Vector2> blueNoisePoints = UniformPoissonDiskSampler.SampleCircle(Vector2.zero, mapSize / 2, delaunayRMin);
+        List<Vector2> blueNoisePoints = UniformPoissonDiskSampler.SampleCircle(Vector2.zero, mapSize / 2, poissonRadius);
         Delaunator delaunator = new Delaunator(blueNoisePoints.ToPoints());
         // fill heightmap
         List<float> pointHeights = HeightField.PerlinIslands(blueNoisePoints, mapSize, 0f, .7f, 4f, 4f, 6);
@@ -174,6 +182,11 @@ public class MapGenerator : MonoBehaviour
 
     void ToggleDraw()
     {
+        // delaunay
+        if (drawDelaunayPoints && delaunayPointsContainer == null || drawDelaunayEdges && delaunayEdgesContainer == null)
+        {
+            SpawnDelaunay(map);
+        }
         if (delaunayPointsContainer != null)
         {
             delaunayPointsContainer.gameObject.SetActive(drawDelaunayPoints);
@@ -182,14 +195,22 @@ public class MapGenerator : MonoBehaviour
         {
             delaunayEdgesContainer.gameObject.SetActive(drawDelaunayEdges);
         }
-        if (voronoiPointsContainer != null)
+
+        // voronoi
+        if (drawVoronoiPoints && voronoiPointsContainer == null || drawVoronoiEdges && voronoiEdgesContainer == null)
         {
+            SpawnVoronoi(map);
+        }
+        if (voronoiPointsContainer != null)
+        { 
             voronoiPointsContainer.gameObject.SetActive(drawVoronoiPoints);
         }
         if (voronoiEdgesContainer != null)
         {
             voronoiEdgesContainer.gameObject.SetActive(drawVoronoiEdges);
         }
+
+        // cells
         if (cellsContainer != null)
         {
             cellsContainer.gameObject.SetActive(drawCells);

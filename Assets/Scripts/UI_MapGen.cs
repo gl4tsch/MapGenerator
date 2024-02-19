@@ -9,27 +9,64 @@ public class UI_MapGen : MonoBehaviour
     [SerializeField] MapGenerator mapGen;
 
     [Header("UI References")]
+    [SerializeField] Button newButton;
+    [SerializeField] Button refreshButton;
     [SerializeField] TMP_InputField seedInput;
-    [SerializeField] Button randomizeButton;
+    [SerializeField] TMP_InputField mapSizeInput;
+    [SerializeField] TMP_InputField cellSizeInput;
+    [SerializeField] Toggle sideCountToggle;
 
-    private void Start()
+    void Start()
+    {
+        InitUiElements();
+
+        newButton.onClick.AddListener(OnNewButtonClicked);
+        refreshButton.onClick.AddListener(OnRefreshButtonClicked);
+        seedInput.onEndEdit.AddListener(OnSeedInput);
+        mapSizeInput.onEndEdit.AddListener(OnMapSizeInput);
+        cellSizeInput.onEndEdit.AddListener(OnCellSizeInput);
+        sideCountToggle.onValueChanged.AddListener(OnSideCountToggle);
+    }
+
+    void InitUiElements()
     {
         seedInput.SetTextWithoutNotify(mapGen.Seed.ToString());
+        mapSizeInput.SetTextWithoutNotify(mapGen.MapSize.ToString());
+        cellSizeInput.SetTextWithoutNotify(mapGen.PoissonDiscRadius.ToString());
+        sideCountToggle.SetIsOnWithoutNotify(mapGen.ShowNeighbourCounts);
+    }
 
-        seedInput.onEndEdit.AddListener(OnSeedInput);
-        randomizeButton.onClick.AddListener(OnRandomizeButtonClicked);
+    void OnNewButtonClicked()
+    {
+        seedInput.SetTextWithoutNotify(mapGen.RandomizeSeed().ToString());
+        mapGen.GenerateMap();
+    }
+
+    void OnRefreshButtonClicked()
+    {
+        mapGen.GenerateMap();
     }
 
     void OnSeedInput(string input)
     {
         int seed = int.Parse(input);
         mapGen.Seed = seed;
-        mapGen.GenerateNewMap();
+        mapGen.GenerateMap();
     }
 
-    void OnRandomizeButtonClicked()
+    void OnMapSizeInput(string input)
     {
-        seedInput.SetTextWithoutNotify(mapGen.RandomizeSeed().ToString());
-        mapGen.GenerateNewMap();
+        mapGen.MapSize = float.Parse(input);
+        mapGen.GenerateMap();
+    }
+
+    void OnCellSizeInput(string input)
+    {
+        mapGen.PoissonDiscRadius = float.Parse(input);
+    }
+
+    void OnSideCountToggle(bool on)
+    {
+        mapGen.ShowNeighbourCounts = on;
     }
 }

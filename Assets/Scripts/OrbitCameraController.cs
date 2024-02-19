@@ -6,6 +6,7 @@ public class OrbitCameraController : MonoBehaviour
     [Header("OrbitTransforms")]
     [SerializeField] Transform orbitCenter;
     [SerializeField] Transform camTransform;
+    [SerializeField] Camera cam;
 
     [Header("Settings")]
     [SerializeField] float yRotSpeed = 20;
@@ -30,6 +31,19 @@ public class OrbitCameraController : MonoBehaviour
     float yRotSum = 0;
     float xRotSum = 0;
     Vector2? prevMousePos = null;
+
+    private void OnValidate()
+    {
+        if (cam == null)
+        {
+            cam = Camera.main;
+        }
+    }
+
+    void Start()
+    {
+        ResetCamera(40);
+    }
 
     private void Update()
     {
@@ -85,10 +99,10 @@ public class OrbitCameraController : MonoBehaviour
         camTransform.position = (camTransform.position - orbitCenter.position).normalized * dist;
     }
 
-    public void ResetCamera()
+    public void ResetCamera(float mapSize)
     {
-        //var camHeight = mapSize * 0.5f / Mathf.Tan(Camera.main.fieldOfView * 0.5f * Mathf.Deg2Rad);
-        //Camera.main.transform.position = new Vector3(0, camHeight * 1.1f, 0);
-        //Camera.main.transform.LookAt(Vector3.zero);
+        var camHeight = mapSize * 0.5f / Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad);
+        camTransform.position = orbitCenter.position +  new Vector3(0, camHeight * 1.1f, 0);
+        camTransform.LookAt(orbitCenter, Vector3.forward);
     }
 }
