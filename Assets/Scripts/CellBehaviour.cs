@@ -22,7 +22,7 @@ public class CellBehaviour : MonoBehaviour
         this.cell = cell;
         Mesh cellMesh = BuildMeshForCell(cell.CornerData, cell.Center, cell.Height);
         meshFilter.mesh = cellMesh;
-        meshRenderer.material.color = heightColors.Evaluate(cell.Height);
+        //meshRenderer.material.color = heightColors.Evaluate(cell.Height);
         transform.position = new Vector3(cell.Center.x, cell.Height, cell.Center.y);
 
         // neighbour count text
@@ -66,16 +66,17 @@ public class CellBehaviour : MonoBehaviour
         }
 
         // fill colors
+        var heightColor = heightColors.Evaluate(height);
         int i = 0;
         // start with top face excluding middle vert
         for (; i < topCornerPositions.Count; i++)
         {
-            colors.Add(Color.red); // red for top face border vertices
+            colors.Add(new Color(heightColor.r, heightColor.g, heightColor.b, 1)); // alpha 1 for top face border vertices
         }
         // continue after top face corner verts
         for (; i < verts.Count; i++)
         {
-            colors.Add(Color.black); // black for no border in shader
+            colors.Add(new Color(heightColor.r, heightColor.g, heightColor.b, 0)); // alpha 0 for no border in shader
         }
 
         mesh.vertices = verts.ToArray();

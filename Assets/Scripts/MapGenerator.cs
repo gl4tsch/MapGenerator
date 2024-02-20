@@ -30,7 +30,21 @@ public class MapGenerator : MonoBehaviour
 
     [Header("Cell")]
     [SerializeField] CellBehaviour cellPrefab;
+    [SerializeField] Material cellMat;
     [SerializeField] bool drawCells;
+
+    [SerializeField] bool drawCellBorders = true;
+    public bool DrawCellBorders
+    {
+        get => drawCellBorders;
+        set
+        {
+            drawCellBorders = value;
+            ToggleDraw();
+        }
+    }
+    string cellBorderBoolName = "_DrawBorder";
+
     [SerializeField] bool showNeighbourCounts;
     public bool ShowNeighbourCounts
     {
@@ -214,6 +228,7 @@ public class MapGenerator : MonoBehaviour
         if (cellsContainer != null)
         {
             cellsContainer.gameObject.SetActive(drawCells);
+            cellMat.SetInt(cellBorderBoolName, drawCellBorders ? 1 : 0);
             foreach (var cell in cellInstances)
             {
                 cell.ToggleNeighbourCountLabel(showNeighbourCounts);

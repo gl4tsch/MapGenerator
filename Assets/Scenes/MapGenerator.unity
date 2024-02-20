@@ -564,6 +564,7 @@ MonoBehaviour:
   mapSizeInput: {fileID: 1538907939}
   cellSizeInput: {fileID: 1496526348}
   sideCountToggle: {fileID: 1150816758}
+  cellBorderToggle: {fileID: 1701774962}
 --- !u!1 &282840810
 GameObject:
   m_ObjectHideFlags: 0
@@ -697,6 +698,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   orbitCenter: {fileID: 1139049695}
   camTransform: {fileID: 282840814}
+  cam: {fileID: 282840813}
   yRotSpeed: 20
   xRotSpeed: 10
   zoomSpeed: -150
@@ -907,7 +909,9 @@ MonoBehaviour:
   voronoiEdgeMat: {fileID: 2100000, guid: 960721c498947f649a98d641bf0caf10, type: 2}
   cellPrefab: {fileID: 2716349091318701221, guid: 32cc75df972680343910d6b7c7cad4b3,
     type: 3}
+  cellMat: {fileID: 2100000, guid: 0b2ed544cfd9d804984540c452aa9053, type: 2}
   drawCells: 1
+  drawCellBorders: 1
   showNeighbourCounts: 0
 --- !u!850595691 &807514396
 LightingSettings:
@@ -1523,6 +1527,18 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 1695935440}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1701774962 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6937082119113592614, guid: a302fe291fe7dfb409d704dfec14cc4d,
+    type: 3}
+  m_PrefabInstance: {fileID: 1695935440}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1724185792 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8592851778543526485, guid: 39a8de2adc3f18f458664f323abe810f,
@@ -1698,7 +1714,7 @@ PrefabInstance:
     - target: {fileID: 6937082119113592612, guid: a302fe291fe7dfb409d704dfec14cc4d,
         type: 3}
       propertyPath: m_Name
-      value: T_
+      value: T_SideCount
       objectReference: {fileID: 0}
     - target: {fileID: 6937082119113592613, guid: a302fe291fe7dfb409d704dfec14cc4d,
         type: 3}
@@ -1743,7 +1759,7 @@ PrefabInstance:
     - target: {fileID: 6937082119113592613, guid: a302fe291fe7dfb409d704dfec14cc4d,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 80
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 6937082119113592613, guid: a302fe291fe7dfb409d704dfec14cc4d,
         type: 3}

@@ -15,6 +15,7 @@ public class UI_MapGen : MonoBehaviour
     [SerializeField] TMP_InputField mapSizeInput;
     [SerializeField] TMP_InputField cellSizeInput;
     [SerializeField] Toggle sideCountToggle;
+    [SerializeField] Toggle cellBorderToggle;
 
     void Start()
     {
@@ -26,6 +27,7 @@ public class UI_MapGen : MonoBehaviour
         mapSizeInput.onEndEdit.AddListener(OnMapSizeInput);
         cellSizeInput.onEndEdit.AddListener(OnCellSizeInput);
         sideCountToggle.onValueChanged.AddListener(OnSideCountToggle);
+        cellBorderToggle.onValueChanged.AddListener(OnCellBorderToggle);
     }
 
     void InitUiElements()
@@ -34,6 +36,7 @@ public class UI_MapGen : MonoBehaviour
         mapSizeInput.SetTextWithoutNotify(mapGen.MapSize.ToString());
         cellSizeInput.SetTextWithoutNotify(mapGen.PoissonDiscRadius.ToString());
         sideCountToggle.SetIsOnWithoutNotify(mapGen.ShowNeighbourCounts);
+        cellBorderToggle.SetIsOnWithoutNotify(mapGen.DrawCellBorders);
     }
 
     void OnNewButtonClicked()
@@ -68,5 +71,10 @@ public class UI_MapGen : MonoBehaviour
     void OnSideCountToggle(bool on)
     {
         mapGen.ShowNeighbourCounts = on;
+    }
+
+    void OnCellBorderToggle(bool on)
+    {
+        mapGen.DrawCellBorders = on;
     }
 }
