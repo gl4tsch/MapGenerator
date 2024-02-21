@@ -47,8 +47,10 @@ public class HeightField
     }
 
     // new format
-    public static List<float> PerlinIslands(List<Vector2> points, float mapSize, float yShift, float edgeDown, float dropOffScale, float frequency, int numElevationLevels)
+    public static List<float> PerlinIslands(List<Vector2> points, float mapSize, float yShift, float edgeDown, float dropOffScale, float frequency, int numElevationLevels, int seed)
     {
+        Random.InitState(seed);
+
         float a = yShift;               // y shift
         float b = edgeDown;             // push edges down
         float c = dropOffScale;         // drop off scale
@@ -80,5 +82,49 @@ public class HeightField
             outPointHeights[i] = h;
         }
         return outPointHeights;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="points">expects points centered around 0,0</param>
+    /// <param name="frequency"></param>
+    /// <param name="edgeDown"></param>
+    /// <param name="dropOffScale"></param>
+    /// <param name="seed"></param>
+    /// <returns></returns>
+    public static List<float> PerlinHeights(List<Vector2> points, float mapRadius, float frequency = 0.1f, float edgeDropOffset = 0.5f, float dropExponent = 3f, int? seed = null)
+    {
+        List<float> outPointHeights = new();
+
+        if (seed.HasValue)
+        {
+            Random.InitState(seed.Value);
+        }
+
+        float offsetX = Random.Range(100, 10000);
+        float offsetY = Random.Range(100, 10000);
+
+        foreach (Vector2 p in points)
+        {
+            float sampleX = (p.x + offsetX) * frequency;
+            float sampleY = (p.y + offsetY) * frequency;
+            float h = Mathf.PerlinNoise(sampleX, sampleY);
+            h = Mathf.Clamp01(h);
+            float normDistFromCenter = p.magnitude / mapRadius;
+            float offsetDist = (normDistFromCenter - edgeDropOffset) / (1 - edgeDropOffset);
+            offsetDist = Mathf.Clamp01(offsetDist);
+            float dropOffFactor = 1 - Mathf.Pow(offsetDist, dropExponent);
+            h *= dropOffFactor;
+
+            outPointHeights.Add(h);
+        }
+
+        return outPointHeights;
+    }
+
+    public static void Discretize(ref List<float> heights, int numElevationLevels, bool fillZeroToOneRange = true)
+    {
+
     }
 }

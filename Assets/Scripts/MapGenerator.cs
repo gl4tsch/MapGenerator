@@ -106,7 +106,6 @@ public class MapGenerator : MonoBehaviour
     public void GenerateMap()
     {
         Clear();
-        Random.InitState(seed);
         map = GenerateMap(mapSize, poissonDiscRadius);
         SpawnCells(map);
         ToggleDraw();
@@ -114,10 +113,16 @@ public class MapGenerator : MonoBehaviour
 
     Map GenerateMap(float mapSize, float poissonRadius)
     {
+        Random.InitState(seed);
         List<Vector2> blueNoisePoints = UniformPoissonDiskSampler.SampleCircle(Vector2.zero, mapSize / 2, poissonRadius);
+
+        Random.InitState(seed);
         Delaunator delaunator = new Delaunator(blueNoisePoints.ToPoints());
+
+        Random.InitState(seed);
         // fill heightmap
-        List<float> pointHeights = HeightField.PerlinIslands(blueNoisePoints, mapSize, 0f, .7f, 4f, 4f, 6);
+        List<float> pointHeights = HeightField.PerlinHeights(blueNoisePoints, mapSize / 2, seed: seed); //HeightField.PerlinIslands(blueNoisePoints, mapSize, 0f, .7f, 4f, 4f, 6, seed);
+
         return new Map(blueNoisePoints, delaunator, pointHeights);
     }
 
