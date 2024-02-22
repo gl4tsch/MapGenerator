@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class HeightField
@@ -125,6 +126,15 @@ public class HeightField
 
     public static void Discretize(ref List<float> heights, int numElevationLevels, bool fillZeroToOneRange = true)
     {
+        float maxH = heights.Max();
+        float minH = heights.Min();
 
+        for (int i = 0; i < heights.Count; i++)
+        {
+            float h = heights[i];
+            h = h.Map(minH, maxH, 0, 1);
+            h = Mathf.Round(h * numElevationLevels) / numElevationLevels;
+            heights[i] = h;
+        }
     }
 }

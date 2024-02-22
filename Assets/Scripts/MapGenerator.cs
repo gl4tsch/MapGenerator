@@ -122,6 +122,7 @@ public class MapGenerator : MonoBehaviour
         Random.InitState(seed);
         // fill heightmap
         List<float> pointHeights = HeightField.PerlinHeights(blueNoisePoints, mapSize / 2, seed: seed); //HeightField.PerlinIslands(blueNoisePoints, mapSize, 0f, .7f, 4f, 4f, 6, seed);
+        HeightField.Discretize(ref pointHeights, 6);
 
         return new Map(blueNoisePoints, delaunator, pointHeights);
     }
