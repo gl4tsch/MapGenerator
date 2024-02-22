@@ -5,15 +5,7 @@ using UnityEngine;
 
 public class HeightField
 {
-    /// <summary>
-    /// 
-    /// </summary>
     /// <param name="points">expects points centered around 0,0</param>
-    /// <param name="frequency"></param>
-    /// <param name="edgeDown"></param>
-    /// <param name="dropOffScale"></param>
-    /// <param name="seed"></param>
-    /// <returns></returns>
     public static List<float> PerlinHeights(List<Vector2> points, float mapRadius, float frequency = 0.1f, float edgeDropOffset = 0.5f, float dropExponent = 3f, int? seed = null)
     {
         List<float> outPointHeights = new();
@@ -28,8 +20,8 @@ public class HeightField
 
         foreach (Vector2 p in points)
         {
-            float sampleX = (p.x + offsetX) * frequency;
-            float sampleY = (p.y + offsetY) * frequency;
+            float sampleX = p.x * frequency + offsetX;
+            float sampleY = p.y * frequency + offsetY;
             float h = Mathf.PerlinNoise(sampleX, sampleY);
             h = Mathf.Clamp01(h);
             float normDistFromCenter = p.magnitude / mapRadius;
@@ -44,15 +36,29 @@ public class HeightField
         return outPointHeights;
     }
 
-    public static void Discretize(ref List<float> heights, int numElevationLevels, bool fillZeroToOneRange = true)
+    public static void Discretize(List<float> heights, int numElevationLevels, bool fillZeroToOneRange = true)
     {
-        float maxH = heights.Max();
-        float minH = heights.Min();
+        if (numElevationLevels <= 0)
+        {
+            return;
+        }
+
+        if (fillZeroToOneRange)
+        {
+            float maxH = heights.Max();
+            float minH = heights.Min();
+
+            for (int i = 0; i < heights.Count; i++)
+            {
+                float h = heights[i];
+                h = h.Map(minH, maxH, 0, 1);
+                heights[i] = h;
+            }
+        }
 
         for (int i = 0; i < heights.Count; i++)
         {
             float h = heights[i];
-            h = h.Map(minH, maxH, 0, 1);
             h = Mathf.Round(h * numElevationLevels) / numElevationLevels;
             heights[i] = h;
         }

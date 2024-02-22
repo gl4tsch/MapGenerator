@@ -16,6 +16,10 @@ public class MapGenerator : MonoBehaviour
     public float MapSize { get => mapSize; set => mapSize = value; }
     [SerializeField] float poissonDiscRadius = 1;
     public float PoissonDiscRadius { get => poissonDiscRadius; set => poissonDiscRadius = value; }
+    [SerializeField] int numElevationLevels = 6;
+    public int NumElevationLevels { get => numElevationLevels; set => numElevationLevels = value; }
+    [SerializeField] float heightMapFrequency = 0.1f;
+    public float HeightMapFrequency { get => heightMapFrequency; set => heightMapFrequency = value; }
 
     [Header("Visuals")]
     [SerializeField] bool drawDelaunayPoints;
@@ -106,12 +110,12 @@ public class MapGenerator : MonoBehaviour
     public void GenerateMap()
     {
         Clear();
-        map = GenerateMap(mapSize, poissonDiscRadius);
+        map = GenerateMap(mapSize, poissonDiscRadius, heightMapFrequency, numElevationLevels);
         SpawnCells(map);
         ToggleDraw();
     }
 
-    Map GenerateMap(float mapSize, float poissonRadius)
+    Map GenerateMap(float mapSize, float poissonRadius, float heightMapFrequency, int numElevationLevels)
     {
         Random.InitState(seed);
         List<Vector2> blueNoisePoints = UniformPoissonDiskSampler.SampleCircle(Vector2.zero, mapSize / 2, poissonRadius);
@@ -121,8 +125,8 @@ public class MapGenerator : MonoBehaviour
 
         Random.InitState(seed);
         // fill heightmap
-        List<float> pointHeights = HeightField.PerlinHeights(blueNoisePoints, mapSize / 2, seed: seed); //HeightField.PerlinIslands(blueNoisePoints, mapSize, 0f, .7f, 4f, 4f, 6, seed);
-        HeightField.Discretize(ref pointHeights, 6);
+        List<float> pointHeights = HeightField.PerlinHeights(blueNoisePoints, mapSize / 2, frequency: heightMapFrequency, seed: seed);
+        HeightField.Discretize(pointHeights, numElevationLevels);
 
         return new Map(blueNoisePoints, delaunator, pointHeights);
     }

@@ -13,7 +13,8 @@ public class UI_MapGen : MonoBehaviour
     [SerializeField] Button refreshButton;
     [SerializeField] TMP_InputField seedInput;
     [SerializeField] TMP_InputField mapSizeInput;
-    [SerializeField] TMP_InputField cellSizeInput;
+    [SerializeField] TMP_InputField heightMapFrequency;
+    [SerializeField] TMP_InputField heightLevelsInput;
     [SerializeField] Toggle sideCountToggle;
     [SerializeField] Toggle cellBorderToggle;
 
@@ -25,7 +26,8 @@ public class UI_MapGen : MonoBehaviour
         refreshButton.onClick.AddListener(OnRefreshButtonClicked);
         seedInput.onEndEdit.AddListener(OnSeedInput);
         mapSizeInput.onEndEdit.AddListener(OnMapSizeInput);
-        cellSizeInput.onEndEdit.AddListener(OnCellSizeInput);
+        heightMapFrequency.onEndEdit.AddListener(OnHeightFrequencyInput);
+        heightLevelsInput.onEndEdit.AddListener(OnHeightLevelInput);
         sideCountToggle.onValueChanged.AddListener(OnSideCountToggle);
         cellBorderToggle.onValueChanged.AddListener(OnCellBorderToggle);
     }
@@ -34,7 +36,8 @@ public class UI_MapGen : MonoBehaviour
     {
         seedInput.SetTextWithoutNotify(mapGen.Seed.ToString());
         mapSizeInput.SetTextWithoutNotify(mapGen.MapSize.ToString());
-        cellSizeInput.SetTextWithoutNotify(mapGen.PoissonDiscRadius.ToString());
+        heightMapFrequency.SetTextWithoutNotify((mapGen.HeightMapFrequency * 10f).ToString());
+        heightLevelsInput.SetTextWithoutNotify(mapGen.NumElevationLevels.ToString());
         sideCountToggle.SetIsOnWithoutNotify(mapGen.ShowNeighbourCounts);
         cellBorderToggle.SetIsOnWithoutNotify(mapGen.DrawCellBorders);
     }
@@ -53,19 +56,36 @@ public class UI_MapGen : MonoBehaviour
     void OnSeedInput(string input)
     {
         int seed = int.Parse(input);
+        if (mapGen.Seed == seed) return;
+
         mapGen.Seed = seed;
         mapGen.GenerateMap();
     }
 
     void OnMapSizeInput(string input)
     {
-        mapGen.MapSize = float.Parse(input);
+        float size = float.Parse(input);
+        if (mapGen.MapSize == size) return;
+        mapGen.MapSize = size;
         mapGen.GenerateMap();
     }
 
-    void OnCellSizeInput(string input)
+    void OnHeightFrequencyInput(string input)
     {
-        mapGen.PoissonDiscRadius = float.Parse(input);
+        float modifiedInput = float.Parse(input) / 10f;
+        if (mapGen.HeightMapFrequency == modifiedInput) return;
+
+        mapGen.HeightMapFrequency = modifiedInput;
+        mapGen.GenerateMap();
+    }
+
+    void OnHeightLevelInput(string input)
+    {
+        int heightLevels = int.Parse(input);
+        if (mapGen.NumElevationLevels == heightLevels) return;
+
+        mapGen.NumElevationLevels = heightLevels;
+        mapGen.GenerateMap();
     }
 
     void OnSideCountToggle(bool on)
